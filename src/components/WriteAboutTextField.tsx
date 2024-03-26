@@ -90,7 +90,7 @@ const WriteAboutTextField: React.FC = () => {
             <button
               disabled={values.text.length === 0}
               className={` text-gray-300 text-[20px] cursor-pointer ${
-                values.text.length > 0 && "text-[#000000]  "
+                values.text.length > 0 && "text-[#8e54c5]  "
               }`}
               onClick={() => {
                 if (textFromHtml.length === 0 || !textFromHtml) {

@@ -149,7 +149,7 @@ export function Main({ name = "Extension" }) {
           {/* chat wrapper */}
           {/* input box */}
           <div className="flex flex-col w-full h-[30%] bg-[#F4F4F5]">
-            <div className="w-[90%] h-[50px] border mt-5 mx-auto flex  flex-row- items-center">
+            <div className="w-[90%] h-[50px]  mt-5 mx-auto flex  flex-row- items-center">
               <span
                 className="  cursor-pointer text-[20px] hover: bg-[#F4F4F5]"
                 onClick={() => {

@@ -61,7 +61,7 @@ export default function ChatHistory() {
                     onClose()
                   }}
                   className="h-[104px] flex flex-col w-full bg-white rounded-xl cursor-pointer hover:bg-[#F4F4F5]">
-                  <p className="font-[600]">
+                  <p className="font-[600] mt-5 ml-5">
                     chat number {item.id} {item.id === 1000 && <p> current</p>}
                   </p>
                 </div>
