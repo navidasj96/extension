@@ -1,4 +1,11 @@
+import { fetchEventSource } from "@microsoft/fetch-event-source"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useEffect, useState } from "react"
+
+import { setFetchingFalse, setFetchingTrue } from "~langRedux/LanguageSlice"
+import { useAppDispatch } from "~langRedux/store"
+
+import { useLangRedux } from "./getLanguageStates"
 
 const apiUrl = "https://api.deepseek.com/v1/chat/completions"
 const apiKey = "sk-03e47d6091b7427a9bcce56cd66abac4"
@@ -16,7 +23,8 @@ export const fetchChatResponse = async (text: string, command: string) => {
           Authorization: `Bearer ${apiKey}`
         },
         body: JSON.stringify({
-          model: "deepseek-chat",
+          model: "deepseek-coder",
+
           messages: [
             { role: "system", content: "You are a helpful assistant." },
             {
@@ -62,3 +70,71 @@ export const useGetChat = (text: string, command: string) => {
 //     return "Translation failed";
 //   }
 // };
+export const useStreamData = (text: string, command: string) => {
+  const dispatch = useAppDispatch()
+
+  const { chatText } = useLangRedux()
+  const [message, setMessage] = useState("")
+  useEffect(() => {
+    setMessage("")
+    const fetchDataStream = async () => {
+      const url = "https://api.deepseek.com/v1/chat/completions"
+      const accessToken = "sk-03e47d6091b7427a9bcce56cd66abac4"
+      const content = command
+        ? `please ${command ? command : "talk about"} this : ${text}`
+        : `${text}`
+      const requestData = {
+        messages: [
+          {
+            content,
+
+            role: "user"
+          }
+        ],
+        model: "deepseek-coder",
+        frequency_penalty: 0,
+        max_tokens: 2048,
+        presence_penalty: 0,
+        stop: null,
+        stream: true,
+        temperature: 1,
+        top_p: 1
+      }
+
+      const headers = {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        Authorization: `Bearer ${accessToken}`
+      }
+      dispatch(setFetchingTrue())
+      await fetchEventSource(url, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(requestData),
+        onclose() {
+          console.log("connection closed")
+        },
+        onmessage(event) {
+          // console.log("event is", event.data);
+          // console.log(
+          //   JSON.parse(event.data.split("data:")[1]).choices[0].delta.content
+          // );
+          if (!event.data.includes("DONE"))
+            setMessage(
+              (prev) => prev + JSON.parse(event.data).choices[0].delta.content
+            )
+          if (event.data.includes("DONE"))
+            setTimeout(() => {
+              dispatch(setFetchingFalse())
+            }, 4000)
+
+          // console.log(JSON.parse(event.data).choices[0].delta.content);
+        }
+      })
+      // dispatch(setFetchingFalse())
+    }
+    if (chatText.length === 0) return
+    fetchDataStream()
+  }, [chatText])
+  return message
+}

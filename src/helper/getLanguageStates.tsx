@@ -28,6 +28,9 @@ export const useLangRedux = () => {
   const displayedChatId = useSelector<RootState, number>(
     (state) => state.counter.displayedChatId
   )
+  const fetching = useSelector<RootState, boolean>(
+    (state) => state.counter.fetching
+  )
 
   return {
     chatText,
@@ -37,6 +40,7 @@ export const useLangRedux = () => {
     textFromHtml,
     command,
     chatHistoryOpen,
-    displayedChatId
+    displayedChatId,
+    fetching
   }
 }

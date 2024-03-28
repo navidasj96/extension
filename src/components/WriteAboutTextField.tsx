@@ -9,7 +9,7 @@ import { BsFillSendFill } from "react-icons/bs"
 import { useDispatch } from "react-redux"
 
 import { useLangRedux } from "~helper/getLanguageStates"
-import { useGetChat } from "~helper/translateApi"
+import { useGetChat, useStreamData } from "~helper/translateApi"
 import {
   setChatConversation,
   setChatText,
@@ -20,8 +20,11 @@ import {
 } from "~langRedux/LanguageSlice"
 
 const WriteAboutTextField: React.FC = () => {
-  const { chatText, converstaion, textFromHtml, command } = useLangRedux()
+  const { chatText, converstaion, textFromHtml, command, fetching } =
+    useLangRedux()
   const { data, error, isFetching, refetch } = useGetChat(chatText, command)
+  const message = useStreamData(chatText, command)
+  // console.log("message is ", message)
 
   const dispatch = useDispatch()
   const {
@@ -55,16 +58,33 @@ const WriteAboutTextField: React.FC = () => {
     }
   }, [chatText])
   useEffect(() => {
-    console.log("data changed", data)
-
-    if (data && data.choices && !isFetching) {
-      dispatch(setChatConversation(data.choices[0].message.content))
-      dispatch(
-        setConvertation({ type: "res", text: data.choices[0].message.content })
-      )
+    if (message && !fetching) {
+      dispatch(setChatConversation(message))
+      dispatch(setConvertation({ type: "res", text: message }))
+      console.log("message to be saved is", message)
     }
-    console.log("converstaion is :", converstaion)
-  }, [data])
+    console.log("fetch is changed to", fetching)
+  }, [fetching])
+  // useEffect(() => {
+  //   console.log("data changed", data)
+
+  //   if (data && data.choices && !isFetching) {
+  //     dispatch(setChatConversation(data.choices[0].message.content))
+  //     dispatch(
+  //       setConvertation({ type: "res", text: data.choices[0].message.content })
+  //     )
+  //   }
+  //   console.log("converstaion is :", converstaion)
+  // }, [data])
+  // useEffect(() => {
+  //   console.log("data changed", data)
+
+  //   if (message) {
+  //     dispatch(setChatConversation(message))
+  //     dispatch(setConvertation({ type: "res", text: message }))
+  //   }
+  //   console.log("converstaion is :", converstaion)
+  // }, [message])
   return (
     <div className="  w-[95%] lg:w-[90%]    ">
       <form onSubmit={handleSubmit}>
@@ -89,7 +109,7 @@ const WriteAboutTextField: React.FC = () => {
           <Box position="absolute" bottom={20} right={10}>
             <button
               disabled={values.text.length === 0}
-              className={` text-gray-300 text-[20px] cursor-pointer ${
+              className={` ${values.text.length < 0 && "text-gray-100"} text-[20px] cursor-pointer ${
                 values.text.length > 0 && "text-[#8e54c5]  "
               }`}
               onClick={() => {

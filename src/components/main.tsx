@@ -13,6 +13,7 @@ import {
   setLocalStorageChats,
   SetStorageBegoreUnmount
 } from "~helper/getLocalStorage"
+import { useStreamData } from "~helper/translateApi"
 import useGetWindowsWidth from "~helper/use-screenwidth"
 import {
   setChatHistoryOpen,
@@ -37,32 +38,28 @@ import WriteAboutTextField from "./WriteAboutTextField"
 const storage = new Storage({ area: "local" })
 
 export function Main({ name = "Extension" }) {
-  // const [
-  //   hailingFrequency,
-  //   setHailingFrequency,
-  //   { setRenderValue, setStoreValue, remove }
-  // ] = useStorage("conversation")
-  // console.log("hailingFrequency", hailingFrequency)
-
   //handle history drawer
   const [openHistory, setOpenHistory] = useState(false)
   const dispatch = useAppDispatch()
+
   //get some neccessary states with useLang hook
   const {
     selectedTextTemplateOpen,
     converstaion,
     textFromHtml,
-    displayedChatId
+    displayedChatId,
+    chatText,
+    command,
+    fetching
   } = useLangRedux()
+  const message = useStreamData(chatText, command)
 
   //set width of the container
   const { screenWidth } = useGetWindowsWidth()
   const isFetching = useIsFetching()
 
   const [containerWidth, setContainerWidth] = useState(screenWidth)
-  // useEffect(() => {
-  //   SetStorageBegoreUnmount()
-  // }, [])
+
   useEffect(() => {
     setContainerWidth(screenWidth - 61)
     // console.log(screenWidth - 65);
@@ -81,12 +78,14 @@ export function Main({ name = "Extension" }) {
     })
   }, [])
 
+  //handle selecting text
   useEffect(() => {
     if (selectedText.length > 0) {
       dispatch(setSelectedTextTemplateOpen(true))
     }
   }, [selectedText])
 
+  //handle saving conversation to local storage
   useEffect(() => {
     if (converstaion.length > 0) {
       setLocalStorageChats({
@@ -114,7 +113,6 @@ export function Main({ name = "Extension" }) {
               {/* {chatReply && !isFetching && (
                 <ResponseTemplate text={chatReply} />
               )} */}
-              {!!isFetching && <WaitingTemplate />}
               {textFromHtml && textFromHtml.length > 0 && (
                 <>
                   {selectedTextTemplateOpen && (
@@ -123,27 +121,33 @@ export function Main({ name = "Extension" }) {
                   <SelectedTextTemplate text={textFromHtml} />
                 </>
               )}
+              {fetching && <ResponseTemplate text={message} />}
               {converstaion &&
                 converstaion.length > 0 &&
-                converstaion.toReversed().map((item) => {
+                converstaion.toReversed().map((item, index) => {
                   return (
                     <>
                       {item.type === "req" && (
                         <QuestionTemplate key={item.text} text={item.text} />
                       )}
-                      {item.type === "res" && (
-                        <ResponseTemplate key={item.text} text={item.text} />
+                      {item.type === "res" && index !== 0 && (
+                        <ResponseTemplate
+                          key={item.text}
+                          text={item.text}
+                          latest={index === 0 ? true : false}
+                        />
+                      )}
+                      {item.type === "res" && index === 0 && !fetching && (
+                        <ResponseTemplate
+                          key={item.text}
+                          text={item.text}
+                          latest={index === 0 ? true : false}
+                        />
                       )}
                     </>
                   )
                 })}
-
-              {/* <QuestionTemplate text="what is that" /> */}
             </div>
-            {/* <div
-              className={`absolute ltr bottom-0 bg-blue-200 rounded-lg px-2 py-2 border left-[50%] ${!isFetching && "hidden"} transition-all duration-200`}>
-              loading ...
-            </div> */}
           </div>
 
           {/* chat wrapper */}
