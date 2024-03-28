@@ -72,12 +72,13 @@ export const useGetChat = (text: string, command: string) => {
 // };
 export const useStreamData = (text: string, command: string) => {
   const dispatch = useAppDispatch()
-
-  const { chatText } = useLangRedux()
+  const { chatText, fetching } = useLangRedux()
+  const [counter, setCounter] = useState(0)
   const [message, setMessage] = useState("")
   useEffect(() => {
-    setMessage("")
+    setCounter((prev) => prev + 1)
     const fetchDataStream = async () => {
+      setMessage("")
       const url = "https://api.deepseek.com/v1/chat/completions"
       const accessToken = "sk-03e47d6091b7427a9bcce56cd66abac4"
       const content = command
@@ -134,6 +135,8 @@ export const useStreamData = (text: string, command: string) => {
       // dispatch(setFetchingFalse())
     }
     if (chatText.length === 0) return
+    console.log("counter is", counter)
+
     fetchDataStream()
   }, [chatText])
   return message

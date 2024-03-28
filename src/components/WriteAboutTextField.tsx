@@ -22,8 +22,8 @@ import {
 const WriteAboutTextField: React.FC = () => {
   const { chatText, converstaion, textFromHtml, command, fetching } =
     useLangRedux()
-  const { data, error, isFetching, refetch } = useGetChat(chatText, command)
-  const message = useStreamData(chatText, command)
+  // const { data, error, isFetching, refetch } = useGetChat(chatText, command)
+  // const message = useStreamData(chatText, command)
   // console.log("message is ", message)
 
   const dispatch = useDispatch()
@@ -52,19 +52,19 @@ const WriteAboutTextField: React.FC = () => {
   useEffect(() => {
     console.log("chat text is ", chatText)
   }, [chatText])
-  useEffect(() => {
-    if (chatText.length > 0) {
-      refetch()
-    }
-  }, [chatText])
-  useEffect(() => {
-    if (message && !fetching) {
-      dispatch(setChatConversation(message))
-      dispatch(setConvertation({ type: "res", text: message }))
-      console.log("message to be saved is", message)
-    }
-    console.log("fetch is changed to", fetching)
-  }, [fetching])
+  // useEffect(() => {
+  //   if (chatText.length > 0) {
+  //     refetch()
+  //   }
+  // }, [chatText])
+  // useEffect(() => {
+  //   if (message && !fetching) {
+  //     dispatch(setChatConversation(message))
+  //     dispatch(setConvertation({ type: "res", text: message }))
+  //     console.log("message to be saved is", message)
+  //   }
+  //   console.log("fetch is changed to", fetching)
+  // }, [fetching])
   // useEffect(() => {
   //   console.log("data changed", data)
 

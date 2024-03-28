@@ -14,6 +14,7 @@ export interface FormState {
   chatHistoryOpen: boolean
   displayedChatId: number
   fetching: boolean
+  refetchReq: number
 }
 
 var initialState: FormState = {
@@ -25,7 +26,8 @@ var initialState: FormState = {
   command: "",
   chatHistoryOpen: false,
   displayedChatId: 1000,
-  fetching: false
+  fetching: false,
+  refetchReq: 0
 }
 
 const LangSlice = createSlice({
@@ -67,6 +69,9 @@ const LangSlice = createSlice({
     },
     setFetchingTrue: (state) => {
       state.fetching = true
+    },
+    refetchReq: (state) => {
+      state.refetchReq = state.refetchReq + 1
     }
   }
 })
@@ -83,7 +88,8 @@ export const {
   setConversationFromHistory,
   setDisplayedChatId,
   setFetchingTrue,
-  setFetchingFalse
+  setFetchingFalse,
+  refetchReq
 } = LangSlice.actions
 const LangSliceReducer = LangSlice.reducer
 export default LangSliceReducer
